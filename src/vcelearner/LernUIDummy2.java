@@ -30,8 +30,11 @@ public class LernUIDummy2 {
         for (LernKarte lK : lKsToRemove) {
             lKs.remove(lK);
         }
+        Benutzer ben;
+        //ben = Benutzer.getBenutzer("Rolf","Rolf");
         BenutzerSitzung session = new BenutzerSitzung(0,
                 new Benutzer("Petra", "Panke"), lKs);
+        
 /* abgeänderte Kopie aus UI-main */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

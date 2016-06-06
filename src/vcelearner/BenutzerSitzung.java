@@ -22,26 +22,28 @@ public class BenutzerSitzung {
     private Benutzer benutzer;
     private ArrayList<SitzungsLernKarte> sLKs;
     private int aktuellerSLKIndex;
-    private LernSitzung lernsitzung;
+    private LernSitzung lernSitzung;
 
     public BenutzerSitzung(int zeitVorgabe, Benutzer benutzer,
             ArrayList<LernKarte> lKs) {
         this.zeitVorgabe = zeitVorgabe;
         this.benutzer = benutzer;
         sLKs = new ArrayList<>();
-//        ArrayList<Benutzer2LernKarte> b2LKs = Benutzer2LernKarte.getByBenutzer();
-//        ArrayList<Integer> wiederVorlageLKIDs = new ArrayList<>();
-//        for (Benutzer2LernKarte b2LK : b2LKs) {
-//            wiederVorlageLKIDs.add(b2LK.getLernKarte_id);
-//        }
+        ArrayList<Benutzer2LernKarte> b2LKs = Benutzer2LernKarte.getAllByBenutzer(benutzer);
+        ArrayList<Integer> wiederVorlageLKIDs = new ArrayList<>();
+        for (Benutzer2LernKarte b2LK : b2LKs) {
+            if (b2LK.isWiedervorlage()) {
+                wiederVorlageLKIDs.add(b2LK.getLernKarte_id());
+            }
+        }
         for (LernKarte lK : lKs) {
             this.sLKs.add(new SitzungsLernKarte(lK));
-//            if (wiederVorlageLKIDs.contains(lK.getID)) {
-//                this.sLKs.get(this.sLKs.size()-1).setWiederVorlage(true);
-//            }
+            if (wiederVorlageLKIDs.contains(lK.getId())) {
+                this.sLKs.get(this.sLKs.size()-1).setWiederVorlage(true);
+            }
         }
-//        lernSitzung= new LernSitzung("ungewertet",java.time.LocalDate.now().toString(),benutzer.getId());        
-//        LernSitzung.insert(lernSitzung);
+        lernSitzung= new LernSitzung("ungewertet",benutzer.getId());        
+        LernSitzung.insert(lernSitzung);
     }
 
     public BenutzerSitzung(int zeitVorgabe, Benutzer benutzer,
@@ -49,18 +51,21 @@ public class BenutzerSitzung {
         this.zeitVorgabe = zeitVorgabe;
         this.benutzer = benutzer;
         sLKs = new ArrayList<>();
-//        ArrayList<Benutzer2LernKarte> b2LKs = Benutzer2LernKarte.getByBenutzer();
-//        ArrayList<Integer> wiederVorlageLKIDs = new ArrayList<>();
-//        for (Benutzer2LernKarte b2LK : b2LKs) {
-//            wiederVorlageLKIDs.add(b2LK.getLernKarte_id);
-//        }
+        ArrayList<Benutzer2LernKarte> b2LKs = Benutzer2LernKarte.getAllByBenutzer(benutzer);
+        ArrayList<Integer> wiederVorlageLKIDs = new ArrayList<>();
+        for (Benutzer2LernKarte b2LK : b2LKs) {
+            if (b2LK.isWiedervorlage()) {
+                wiederVorlageLKIDs.add(b2LK.getLernKarte_id());
+            }
+        }
         for (LernKarte lK : lKs) {
             this.sLKs.add(new SitzungsLernKarte(lK));
-//            if (wiederVorlageLKIDs.contains(lK.getID)) {
-//                this.sLKs.get(this.sLKs.size()-1).setWiederVorlage(true);
-//            }
+            if (wiederVorlageLKIDs.contains(lK.getId())) {
+                this.sLKs.get(this.sLKs.size()-1).setWiederVorlage(true);
+            }
         }
-        this.lernsitzung = lernsitzung;
+        lernSitzung= new LernSitzung(lernSitzungsTyp,benutzer.getId());        
+        LernSitzung.insert(lernSitzung);
     }
     
 
@@ -88,7 +93,7 @@ public class BenutzerSitzung {
             for (int j = 0; j < benutzerSitzung.getsLKs().get(i).getGegebeneAntworten().size(); j++) {
 
                 LernSitzung2PotentielleAntwort ls2pa
-                        = new LernSitzung2PotentielleAntwort(benutzerSitzung.getLernsitzung().getId(),
+                        = new LernSitzung2PotentielleAntwort(benutzerSitzung.getLernSitzung().getId(),
                                 benutzerSitzung.getsLKs().get(i).getGegebeneAntworten().get(j).getId());
                 LernSitzung2PotentielleAntwort.insert(ls2pa);
 
@@ -96,7 +101,7 @@ public class BenutzerSitzung {
 
             // Gemogelt in LernSitzung2LernKarte speichern
             LernSitzung2LernKarte ls2lk
-                    = new LernSitzung2LernKarte(benutzerSitzung.getLernsitzung().getId(),
+                    = new LernSitzung2LernKarte(benutzerSitzung.getLernSitzung().getId(),
                             benutzerSitzung.getsLKs().get(i).getlK().getId(),
                             benutzerSitzung.getsLKs().get(i).isGemogelt());
             LernSitzung2LernKarte.insert(ls2lk);
@@ -113,12 +118,12 @@ public class BenutzerSitzung {
         this.aktuellerSLKIndex = aktuellerSLKIndex;
     }
 
-    public LernSitzung getLernsitzung() {
-        return lernsitzung;
+    public LernSitzung getLernSitzung() {
+        return lernSitzung;
     }
 
-    public void setLernsitzung(LernSitzung lernsitzung) {
-        this.lernsitzung = lernsitzung;
+    public void setLernSitzung(LernSitzung lernSitzung) {
+        this.lernSitzung = lernSitzung;
     }
 
     public int getZeitVorgabe() {
@@ -158,19 +163,20 @@ public class BenutzerSitzung {
 
     public void speichereInDB() {
         // Dummy-Code
-        String ausgabe = "\nBenutzer : " + benutzer.getLogin();
-        ausgabe += "\nZeitlimit : " + zeitVorgabe;
-        for (SitzungsLernKarte sLK : sLKs) {
-            ausgabe += "\nFrage-ID " + sLK.getlK().getId() + " gegebene Antworten : ";
-            for (PotentielleAntwort pA : sLK.getlK().getpAs()) {
-                if (sLK.getGegebeneAntworten().contains(pA)) {
-                    ausgabe += pA.getId() + "(" + (sLK.getlK().getpAs().indexOf(pA) + 1) + "), ";
-                }
-            }
-            ausgabe += "Gemogelt = " + sLK.isGemogelt() + ", Wiedervorlage = "
-                    + sLK.isWiederVorlage() + "\n";
-        }
-        System.out.println(ausgabe);
+//        String ausgabe = "\nBenutzer : " + benutzer.getLogin();
+//        ausgabe += "\nZeitlimit : " + zeitVorgabe;
+//        for (SitzungsLernKarte sLK : sLKs) {
+//            ausgabe += "\nFrage-ID " + sLK.getlK().getId() + " gegebene Antworten : ";
+//            for (PotentielleAntwort pA : sLK.getlK().getpAs()) {
+//                if (sLK.getGegebeneAntworten().contains(pA)) {
+//                    ausgabe += pA.getId() + "(" + (sLK.getlK().getpAs().indexOf(pA) + 1) + "), ";
+//                }
+//            }
+//            ausgabe += "Gemogelt = " + sLK.isGemogelt() + ", Wiedervorlage = "
+//                    + sLK.isWiederVorlage() + "\n";
+//        }
+//        System.out.println(ausgabe);
+        insert(this);
     }
 
     public SitzungsLernKarte getNextSitzungsLernKarte() {
