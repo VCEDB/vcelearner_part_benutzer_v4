@@ -87,7 +87,16 @@ public class BenutzerSitzung {
                 
                 Benutzer2LernKarte.insert(b2lk);
             }
-
+            // Wiedervorlage in Benutzer2Lernkarte löschen, nur wenn
+            // Wiedervorlage = false und allerdings ein diesbezüglicher Eintrag in der DB
+            // vorhanden ist
+            if (benutzerSitzung.getsLKs().get(i).isWiederVorlage() == false && 
+                Benutzer2LernKarte.checkWiedervorlage(b2lk)== true) {
+                
+                Benutzer2LernKarte.delete(benutzerSitzung.getBenutzer(), 
+                    benutzerSitzung.getsLKs().get(i).getlK()
+                );
+            }
             // ArrayList Gegebene Antworten (als PotentielleAntworten) in 
             // LernSitzung2PotentielleAntwort speichern
             for (int j = 0; j < benutzerSitzung.getsLKs().get(i).getGegebeneAntworten().size(); j++) {
